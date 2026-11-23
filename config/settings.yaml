@@ -40,7 +40,7 @@ voicevox:
       speed_scale: 1.18        # 視聴維持率を高めるテンポ設定 (1.15〜1.20)
       pitch_scale: 0.0
       intonation_scale: 1.05
-      volume_scale: 1.0
+      volume_scale: 1.5        # 音声合成時点のベース音量を1.5倍に強化
       position: "left"
       theme_color: "#FF5C9E"   # 字幕メイン縁取り色（ピンク系）
       border_dark: "#8A1244"   # 字幕外側シャドウ色
@@ -54,7 +54,7 @@ voicevox:
       speed_scale: 1.18        # 視聴維持率を高めるテンポ設定 (1.15〜1.20)
       pitch_scale: 0.0
       intonation_scale: 1.12
-      volume_scale: 1.0
+      volume_scale: 1.5        # 音声合成時点のベース音量を1.5倍に強化
       position: "right"
       theme_color: "#4CD964"   # 字幕メイン縁取り色（グリーン系）
       border_dark: "#126B24"   # 字幕外側シャドウ色
@@ -106,7 +106,8 @@ video:
   audio_codec: "aac"
   audio_bitrate: "192k"
   sample_rate: 24000
-  bgm_volume_ratio: 0.08       # ナレーションを邪魔しないBGM音量比率
+  voice_boost_gain: 2.2        # FFmpegミキシング時のボイス音量増幅ゲイン
+  bgm_volume_ratio: 0.14       # ナレーション増幅に合わせたBGM音量比率
   mouth_flap_interval_sec: 0.16 # 発話中の口パク開閉周期（秒）
 
   # プリセット背景テーマカラー（完全ローカル生成・外部API不要）

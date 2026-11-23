@@ -54,6 +54,11 @@ class EnvConfig:
     youtube_privacy_status: str
     youtube_category_id: str
     webhook_url: str
+    notify_email_to: str
+    smtp_host: str
+    smtp_port: int
+    smtp_user: str
+    smtp_password: str
     force_topic_keyword: str
     dry_run: bool
 
@@ -116,6 +121,12 @@ class AppConfig:
         if "2.5" in raw_fast_model or "3.8" in raw_fast_model:
             raw_fast_model = "gemini-3.5-flash"
 
+        smtp_port_str = _clean_env("SMTP_PORT", "465") or "465"
+        try:
+            smtp_port = int(smtp_port_str)
+        except ValueError:
+            smtp_port = 465
+
         return EnvConfig(
             gemini_api_key=_clean_env("GEMINI_API_KEY"),
             gemini_model=raw_main_model,
@@ -127,6 +138,11 @@ class AppConfig:
             youtube_privacy_status=privacy,
             youtube_category_id=_clean_env("YOUTUBE_CATEGORY_ID", default_cat) or default_cat,
             webhook_url=_clean_env("WEBHOOK_URL"),
+            notify_email_to=_clean_env("NOTIFY_EMAIL_TO"),
+            smtp_host=_clean_env("SMTP_HOST", "smtp.gmail.com") or "smtp.gmail.com",
+            smtp_port=smtp_port,
+            smtp_user=_clean_env("SMTP_USER"),
+            smtp_password=_clean_env("SMTP_PASSWORD"),
             force_topic_keyword=_clean_env("FORCE_TOPIC_KEYWORD"),
             dry_run=dry_run,
         )
@@ -138,6 +154,7 @@ class AppConfig:
             self.env.youtube_client_secret,
             self.env.youtube_refresh_token,
             self.env.webhook_url,
+            self.env.smtp_password,
         ]
         mask_filter = SecretMaskingFilter(secrets)
 

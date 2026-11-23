@@ -124,16 +124,21 @@ def main() -> None:
         "YOUTUBE_CLIENT_ID",
         "YOUTUBE_CLIENT_SECRET",
         "YOUTUBE_REFRESH_TOKEN",
+        "NOTIFY_EMAIL_TO",
+        "SMTP_USER",
+        "SMTP_PASSWORD",
     ]:
         val = os.getenv(key, "").strip()
+        if not val or val.lower().startswith("your_"):
+            continue
         print(f"  【Name】  : {key}")
         print(f"  【Secret】: {val}")
         print("-" * 74)
 
     webbrowser.open(secrets_url)
 
-    print("\n  ★ 上記4つを登録したら、以下の Actions タブを開いて「Run workflow」を押すと")
-    print("    クラウド上で今すぐテスト実行でき、以降は【PCの電源が切れていても毎日18:00】に自動投稿されます！")
+    print("\n  ★ 上記を登録したら、以下の Actions タブを開いて「Run workflow」を押すと")
+    print("    クラウド上で今すぐテスト実行でき、以降は【PCの電源が切れていても1日6回（4時間おき）】に自動投稿されます！")
     print(f"  Actions ページ: {actions_url}")
     print("=" * 74)
 

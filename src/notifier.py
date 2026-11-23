@@ -1,7 +1,9 @@
 import json
 import logging
+import smtplib
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from email.message import EmailMessage
+from typing import Any, Dict
 
 import httpx
 
@@ -14,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 class Notifier:
     """
-    投稿履歴 (data/history.json) の更新・永続化および
-    Discord / Slack 等への Webhook 通知を行うモジュール。
+    投稿履歴 (data/history.json) の更新・永続化、
+    投稿完了・エラー時のメール通知 (Gmail SMTP等)、
+    および Discord / Slack 等への Webhook 通知を行うモジュール。
     """
 
     def __init__(self, config: AppConfig) -> None:
@@ -70,7 +73,6 @@ class Notifier:
                 "published_at": now_utc.isoformat(),
             }
         )
-        # 直近500件を保持
         data["published_videos"] = published_list[-500:]
 
         history_path.write_text(
@@ -78,6 +80,70 @@ class Notifier:
             encoding="utf-8",
         )
         logger.info("投稿履歴を保存しました: %s", history_path)
+
+    def send_email(
+        self,
+        status: str,
+        topic_keyword: str,
+        title: str = "",
+        video_url: str = "",
+        duration_sec: float = 0.0,
+        insight_ratio: float = 0.0,
+        elapsed_sec: float = 0.0,
+        error_message: str = "",
+    ) -> bool:
+        """投稿完了またはエラー時にメールで通知を送信する"""
+        env = self.config.env
+        to_addr = env.notify_email_to or env.smtp_user
+        smtp_user = env.smtp_user or env.notify_email_to
+        smtp_pass = env.smtp_password.replace(" ", "")
+
+        if not (to_addr and smtp_user and smtp_pass):
+            return False
+
+        msg = EmailMessage()
+        msg["From"] = smtp_user
+        msg["To"] = to_addr
+
+        if status == "SUCCESS":
+            msg["Subject"] = f"【YouTube自動投稿完了】{title or topic_keyword}"
+            body = (
+                f"YouTube 急上昇トレンド解説＆考察動画の自動生成・公開が完了しました！\n\n"
+                f"■ 公開動画URL:\n{video_url}\n\n"
+                f"■ 動画タイトル:\n{title}\n\n"
+                f"■ 選定トレンド:\n{topic_keyword}\n\n"
+                f"■ 動画スペック:\n"
+                f"・再生時間: {duration_sec / 60.0:.1f}分 ({duration_sec:.0f}秒)\n"
+                f"・独自考察比率: {insight_ratio * 100:.1f}%\n"
+                f"・公開設定: {env.youtube_privacy_status}\n"
+                f"・処理所要時間: {elapsed_sec:.1f}秒\n"
+            )
+        else:
+            msg["Subject"] = f"【YouTube自動投稿エラー】{topic_keyword or 'トレンド動画生成'}"
+            body = (
+                f"YouTube トレンド解説動画の自動生成中にエラーが発生しました。\n\n"
+                f"■ 対象トレンド: {topic_keyword or '選定中'}\n"
+                f"■ 経過時間: {elapsed_sec:.1f}秒\n"
+                f"■ エラー詳細:\n{error_message[:1000]}\n"
+            )
+
+        msg.set_content(body)
+
+        try:
+            if env.smtp_port == 465:
+                with smtplib.SMTP_SSL(env.smtp_host, env.smtp_port, timeout=20.0) as server:
+                    server.login(smtp_user, smtp_pass)
+                    server.send_message(msg)
+            else:
+                with smtplib.SMTP(env.smtp_host, env.smtp_port, timeout=20.0) as server:
+                    server.starttls()
+                    server.login(smtp_user, smtp_pass)
+                    server.send_message(msg)
+            logger.info("完了通知メールを送信しました (宛先=%s, status=%s)", to_addr, status)
+            return True
+        except Exception as e:
+            logger.warning("メール通知の送信に失敗しました: %s", e)
+            return False
 
     def send_webhook(
         self,
@@ -90,7 +156,18 @@ class Notifier:
         elapsed_sec: float = 0.0,
         error_message: str = "",
     ) -> None:
-        """Discord または Slack の Webhook URL が設定されている場合に完了・エラー通知を送信"""
+        """メール通知および Webhook (Discord / Slack) 通知を一括実行する"""
+        self.send_email(
+            status=status,
+            topic_keyword=topic_keyword,
+            title=title,
+            video_url=video_url,
+            duration_sec=duration_sec,
+            insight_ratio=insight_ratio,
+            elapsed_sec=elapsed_sec,
+            error_message=error_message,
+        )
+
         webhook_url = self.config.env.webhook_url
         if not webhook_url:
             return
@@ -112,7 +189,6 @@ class Notifier:
                 f"・**エラー内容**: {error_message[:500]}"
             )
 
-        # Discord (content) / Slack (text) 両対応ペイロード
         payload: Dict[str, Any] = (
             {"content": summary_text}
             if "discord" in webhook_url.lower()

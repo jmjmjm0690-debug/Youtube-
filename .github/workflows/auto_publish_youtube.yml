@@ -2,13 +2,14 @@ name: Auto Generate & Publish YouTube Trend Video
 
 on:
   # ----------------------------------------------------------------------------
-  # 1. 定時スケジュール実行 (schedule)
-  # GitHub Actions の cron は UTC 基準で指定します。
-  # 変換ルール: JST (日本標準時) = UTC + 9時間 (UTC = JST - 9時間)
-  # 例: 毎日 日本時間 18:00 に実行する場合 -> UTC 09:00 ('0 9 * * *')
+  # 1. 定時スケジュール実行 (schedule: 1日6回・4時間おき自動投稿)
+  # GitHub Actions の cron は UTC 基準で指定します (JST = UTC + 9時間)。
+  # 日本時間 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 の計6回実行
+  # -> UTC 15:00, 19:00, 23:00, 03:00, 07:00, 11:00 ('0 3,7,11,15,19,23 * * *')
+  # ※YouTube Data API v3 クォータ計算: 1,650 units × 6回 = 9,900 units/日 (無料上限10,000以内)
   # ----------------------------------------------------------------------------
   schedule:
-    - cron: "0 9 * * *"
+    - cron: "0 3,7,11,15,19,23 * * *"
 
   # ----------------------------------------------------------------------------
   # 2. 手動トリガー実行 (workflow_dispatch)
@@ -105,6 +106,11 @@ jobs:
           YOUTUBE_PRIVACY_STATUS: ${{ inputs.privacy_status || vars.YOUTUBE_PRIVACY_STATUS || 'public' }}
           YOUTUBE_CATEGORY_ID: ${{ vars.YOUTUBE_CATEGORY_ID || '25' }}
           WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          NOTIFY_EMAIL_TO: ${{ secrets.NOTIFY_EMAIL_TO || vars.NOTIFY_EMAIL_TO || 'jmjmjm0690@gmail.com' }}
+          SMTP_HOST: ${{ vars.SMTP_HOST || 'smtp.gmail.com' }}
+          SMTP_PORT: ${{ vars.SMTP_PORT || '465' }}
+          SMTP_USER: ${{ secrets.SMTP_USER || vars.SMTP_USER || 'jmjmjm0690@gmail.com' }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           FORCE_TOPIC_KEYWORD: ${{ inputs.topic_keyword || '' }}
           DRY_RUN: ${{ inputs.dry_run || false }}
         run: |

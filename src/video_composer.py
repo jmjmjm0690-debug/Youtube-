@@ -28,7 +28,8 @@ class VideoComposer:
         self.video_preset = str(self.video_cfg.get("video_preset", "veryfast"))
         self.video_crf = int(self.video_cfg.get("video_crf", 20))
         self.audio_bitrate = str(self.video_cfg.get("audio_bitrate", "192k"))
-        self.bgm_volume = float(self.video_cfg.get("bgm_volume_ratio", 0.08))
+        self.voice_boost = float(self.video_cfg.get("voice_boost_gain", 2.2))
+        self.bgm_volume = float(self.video_cfg.get("bgm_volume_ratio", 0.14))
         self.flap_interval = float(
             self.video_cfg.get("mouth_flap_interval_sec", 0.18)
         )
@@ -162,9 +163,10 @@ class VideoComposer:
             str(bgm_path.resolve()),
             "-filter_complex",
             (
-                f"[1:a]volume=1.0[voice];"
+                f"[1:a]volume={self.voice_boost:.2f},dynaudnorm=f=150:g=11:p=0.95[voice];"
                 f"[2:a]volume={self.bgm_volume:.3f}[bgm];"
-                f"[voice][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]"
+                f"[voice][bgm]amix=inputs=2:duration=first:dropout_transition=2:normalize=0,"
+                f"alimiter=limit=0.98:level=false[aout]"
             ),
             "-map",
             "0:v:0",

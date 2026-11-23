@@ -1,0 +1,154 @@
+# ==============================================================================
+# システム全体設定ファイル (config/settings.yaml)
+# ==============================================================================
+
+project:
+  name: "YouTube Trend Deep Insight Auto Studio"
+  timezone: "Asia/Tokyo"
+  language: "ja-JP"
+
+# ------------------------------------------------------------------------------
+# 収益化（YPP）要件・動画尺設計（8分〜12分）
+# ------------------------------------------------------------------------------
+monetization_policy:
+  min_duration_sec: 480        # 最短 8分00秒 (ミッドロール広告基準)
+  target_duration_sec: 560     # 標準目標 9分20秒
+  max_duration_sec: 720        # 最長 12分00秒
+  min_total_chars: 4200        # 台本全体の最低文字数目安
+  target_total_chars: 5000     # 台本全体の標準目標文字数
+  min_insight_ratio: 0.62      # 台本全体に対する「独自考察・構造分析」パートの最低比率 (60%以上必須)
+  required_credits:
+    - "VOICEVOX:四国めたん"
+    - "VOICEVOX:ずんだもん"
+    - "立ち絵:坂本アヒル様"
+
+# ------------------------------------------------------------------------------
+# VOICEVOX キャラクター＆音声合成設定
+# ------------------------------------------------------------------------------
+voicevox:
+  default_base_url: "http://127.0.0.1:50021"
+  max_concurrency: 3           # 並列音声合成ワーカー数
+  inter_line_pause_sec: 0.24   # セリフ間の無音間隔（秒）
+  section_pause_sec: 0.75      # 章（セクション）切り替え時の無音間隔（秒）
+  characters:
+    metan:
+      id: "metan"
+      display_name: "四国めたん"
+      voice_style: "ノーマル"
+      speaker_id: 2            # 四国めたん（ノーマル）固定ID
+      role: "解説・構造分析リード"
+      speed_scale: 1.18        # 視聴維持率を高めるテンポ設定 (1.15〜1.20)
+      pitch_scale: 0.0
+      intonation_scale: 1.05
+      volume_scale: 1.0
+      position: "left"
+      theme_color: "#FF5C9E"   # 字幕メイン縁取り色（ピンク系）
+      border_dark: "#8A1244"   # 字幕外側シャドウ色
+      badge_bg: "#D92B72"
+    zundamon:
+      id: "zundamon"
+      display_name: "ずんだもん"
+      voice_style: "ノーマル"
+      speaker_id: 3            # ずんだもん（ノーマル）固定ID
+      role: "聞き手・視聴者代表・疑問＆ツッコミ"
+      speed_scale: 1.18        # 視聴維持率を高めるテンポ設定 (1.15〜1.20)
+      pitch_scale: 0.0
+      intonation_scale: 1.12
+      volume_scale: 1.0
+      position: "right"
+      theme_color: "#4CD964"   # 字幕メイン縁取り色（グリーン系）
+      border_dark: "#126B24"   # 字幕外側シャドウ色
+      badge_bg: "#26A63E"
+  supported_emotions:
+    - "normal"
+    - "happy"
+    - "surprised"
+    - "serious"
+    - "troubled"
+
+# ------------------------------------------------------------------------------
+# 急上昇トレンド収集ソース（日本 JP）
+# ------------------------------------------------------------------------------
+trends:
+  geo: "JP"
+  history_lookback_days: 60    # 過去60日以内の類似トピックを重複除外
+  max_candidates_to_score: 20
+  rss_feeds:
+    - name: "Google Trends Daily JP"
+      url: "https://trends.google.co.jp/trending/rss?geo=JP"
+      category: "trending"
+    - name: "Yahoo! News Topics Top"
+      url: "https://news.yahoo.co.jp/rss/topics/top-picks.xml"
+      category: "general"
+    - name: "Yahoo! News Topics Business"
+      url: "https://news.yahoo.co.jp/rss/topics/business.xml"
+      category: "business"
+    - name: "Yahoo! News Topics IT"
+      url: "https://news.yahoo.co.jp/rss/topics/it.xml"
+      category: "technology"
+    - name: "NHK News Main"
+      url: "https://www.nhk.or.jp/rss/news/cat0.xml"
+      category: "general"
+    - name: "Google News Japan Top"
+      url: "https://news.google.com/rss?hl=ja&gl=JP&ceid=JP:ja"
+      category: "general"
+
+# ------------------------------------------------------------------------------
+# 映像・スライド・字幕・サムネイル描画設定 (16:9 1080p)
+# ------------------------------------------------------------------------------
+video:
+  width: 1920
+  height: 1080
+  fps: 30
+  video_codec: "libx264"
+  video_preset: "veryfast"
+  video_crf: 20
+  audio_codec: "aac"
+  audio_bitrate: "192k"
+  sample_rate: 24000
+  bgm_volume_ratio: 0.08       # ナレーションを邪魔しないBGM音量比率
+  mouth_flap_interval_sec: 0.16 # 発話中の口パク開閉周期（秒）
+
+  # プリセット背景テーマカラー（完全ローカル生成・外部API不要）
+  background_themes:
+    technology:
+      bg_top: "#0A1128"
+      bg_bottom: "#1C2541"
+      accent: "#00F5D4"
+      card_bg: "#141E38"
+    business:
+      bg_top: "#0F172A"
+      bg_bottom: "#1E293B"
+      accent: "#38BDF8"
+      card_bg: "#17223B"
+    society:
+      bg_top: "#1A1423"
+      bg_bottom: "#2D233D"
+      accent: "#F59E0B"
+      card_bg: "#231B30"
+    culture:
+      bg_top: "#1E112A"
+      bg_bottom: "#321C45"
+      accent: "#F472B6"
+      card_bg: "#281638"
+    default:
+      bg_top: "#0D1322"
+      bg_bottom: "#1B263B"
+      accent: "#4EA8DE"
+      card_bg: "#162035"
+
+thumbnail:
+  width: 1280
+  height: 720
+  format: "PNG"
+
+# ------------------------------------------------------------------------------
+# YouTube Data API v3 投稿・クォータ設定
+# ------------------------------------------------------------------------------
+youtube:
+  default_privacy_status: "public"
+  default_category_id: "25"    # 25: News & Politics
+  made_for_kids: false
+  daily_quota_limit: 10000
+  estimated_upload_cost: 1650  # videos.insert(1600) + thumbnails.set(50)
+  max_retries: 3

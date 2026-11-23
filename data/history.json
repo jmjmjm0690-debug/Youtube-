@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "updated_at": "2026-11-23T05:54:45.258923+00:00",
+  "daily_quota": {
+    "date": "2026-11-23",
+    "used_units": 1600
+  },
+  "published_videos": [
+    {
+      "video_id": "jeoDUWGIVVk",
+      "video_url": "https://www.youtube.com/watch?v=jeoDUWGIVVk",
+      "topic_keyword": "リフォーム工事業の倒産 過去最多",
+      "title": "【なぜ】リフォーム業者倒産が過去最多！激増の真因と今すぐできる防衛策",
+      "privacy_status": "public",
+      "duration_sec": 848.3,
+      "total_chars": 5762,
+      "insight_ratio": 0.667,
+      "published_at": "2026-11-23T05:54:45.258923+00:00"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+name: Auto Generate & Publish YouTube Trend Video
+
+on:
+  # ----------------------------------------------------------------------------
+  # 1. 定時スケジュール実行 (schedule)
+  # GitHub Actions の cron は UTC 基準で指定します。
+  # 変換ルール: JST (日本標準時) = UTC + 9時間 (UTC = JST - 9時間)
+  # 例: 毎日 日本時間 18:00 に実行する場合 -> UTC 09:00 ('0 9 * * *')
+  # ----------------------------------------------------------------------------
+  schedule:
+    - cron: "0 9 * * *"
+
+  # ----------------------------------------------------------------------------
+  # 2. 手動トリガー実行 (workflow_dispatch)
+  # テスト実行・トピック手動指定・限定公開(unlisted)テスト切り替えに対応
+  # ----------------------------------------------------------------------------
+  workflow_dispatch:
+    inputs:
+      topic_keyword:
+        description: "解説するトレンドトピックを手動指定（空欄の場合は急上昇トレンドから自動選定）"
+        required: false
+        default: ""
+        type: string
+      privacy_status:
+        description: "YouTube 公開ステータス (本番: public / 限定公開テスト: unlisted / 非公開: private)"
+        required: true
+        default: "public"
+        type: choice
+        options:
+          - public
+          - unlisted
+          - private
+      dry_run:
+        description: "ドライラン（true にすると動画生成のみ行い YouTube 投稿をスキップ）"
+        required: true
+        default: false
+        type: boolean
+
+# 多重実行防止: 同時起動による二重投稿やAPIクォータ重複消費を防止
+concurrency:
+  group: youtube-trend-auto-publisher
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  TZ: Asia/Tokyo
+  PYTHONUNBUFFERED: "1"
+
+jobs:
+  generate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    # VOICEVOX Engine をサービスコンテナとしてバックグラウンド起動
+    services:
+      voicevox:
+        image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
+        ports:
+          - 50021:50021
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install FFmpeg and Japanese Fonts (Noto Sans CJK JP)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg fonts-noto-cjk fonts-noto-cjk-extra
+          fc-cache -fv
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Wait for VOICEVOX Engine readiness
+        run: |
+          echo "VOICEVOX Engine の起動を待機しています..."
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:50021/version >/dev/null; then
+              echo "VOICEVOX Engine is ready!"
+              curl -s http://127.0.0.1:50021/version
+              break
+            fi
+            sleep 2
+          done
+
+      - name: Run End-to-End Video Generation & YouTube Publish Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-3.6-flash' }}
+          GEMINI_FAST_MODEL: ${{ vars.GEMINI_FAST_MODEL || 'gemini-3.5-flash' }}
+          VOICEVOX_BASE_URL: "http://127.0.0.1:50021"
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_PRIVACY_STATUS: ${{ inputs.privacy_status || vars.YOUTUBE_PRIVACY_STATUS || 'public' }}
+          YOUTUBE_CATEGORY_ID: ${{ vars.YOUTUBE_CATEGORY_ID || '25' }}
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+          FORCE_TOPIC_KEYWORD: ${{ inputs.topic_keyword || '' }}
+          DRY_RUN: ${{ inputs.dry_run || false }}
+        run: |
+          python -m src.main
+
+      - name: Upload Generated Video & Script Artifacts (7 days retention)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: youtube-trend-episode-${{ github.run_id }}
+          path: |
+            output/*/final_video.mp4
+            output/*/thumbnail.png
+            output/*/episode_script.json
+            output/*/youtube_description.txt
+            output/*/run_report.json
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Commit & Push Updated Publication History (data/history.json)
+        if: success() && inputs.dry_run != true
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/history.json
+          if git diff --staged --quiet; then
+            echo "履歴ファイルの変更はありません。"
+          else
+            git commit -m "chore(history): update published trend history [skip ci]"
+            git push
+          fi

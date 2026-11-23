@@ -1,0 +1,32 @@
+services:
+  voicevox:
+    image: voicevox/voicevox_engine:cpu-ubuntu20.04-latest
+    container_name: voicevox_engine
+    ports:
+      - "50021:50021"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:50021/version"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: youtube_trend_auto_studio
+    depends_on:
+      voicevox:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      TZ: Asia/Tokyo
+      VOICEVOX_BASE_URL: http://voicevox:50021
+    volumes:
+      - ./config:/app/config
+      - ./assets:/app/assets
+      - ./data:/app/data
+      - ./output:/app/output
+    command: ["python", "-m", "src.main"]

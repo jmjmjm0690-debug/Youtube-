@@ -1,0 +1,24 @@
+# 環境変数・認証情報
+.env
+client_secret*.json
+token.json
+
+# 生成物・一時ファイル・ローカル音声モデル
+output/
+tmp/
+voicevox_core/
+*.mp4
+*.wav
+!assets/bgm/default_loop.wav
+
+# Python キャッシュ
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.venv/
+venv/
+
+# OS固有ファイル
+.DS_Store
+Thumbs.db

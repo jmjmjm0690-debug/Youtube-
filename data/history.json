@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-11-25T03:07:58.738286+00:00",
+  "updated_at": "2026-11-25T12:51:10.925870+00:00",
   "daily_quota": {
     "date": "2026-11-25",
-    "used_units": 1650
+    "used_units": 3300
   },
   "published_videos": [
     {
@@ -27,6 +27,17 @@
       "total_chars": 5344,
       "insight_ratio": 0.688,
       "published_at": "2026-11-25T03:07:58.738286+00:00"
+    },
+    {
+      "video_id": "Zfr-ci2fvnE",
+      "video_url": "https://www.youtube.com/watch?v=Zfr-ci2fvnE",
+      "topic_keyword": "JAXA 月探査車の試験走行を公開",
+      "title": "JAXA月探査車公開！なぜ日本の自動車技術が宇宙の覇権を握るのか？",
+      "privacy_status": "public",
+      "duration_sec": 910.3,
+      "total_chars": 6030,
+      "insight_ratio": 0.677,
+      "published_at": "2026-11-25T12:51:10.925870+00:00"
     }
   ]
 }

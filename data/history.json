@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-11-25T12:51:10.925870+00:00",
+  "updated_at": "2026-11-26T12:20:11.315642+00:00",
   "daily_quota": {
-    "date": "2026-11-25",
-    "used_units": 3300
+    "date": "2026-11-26",
+    "used_units": 1650
   },
   "published_videos": [
     {
@@ -38,6 +38,17 @@
       "total_chars": 6030,
       "insight_ratio": 0.677,
       "published_at": "2026-11-25T12:51:10.925870+00:00"
+    },
+    {
+      "video_id": "r_wx01xYsZw",
+      "video_url": "https://www.youtube.com/watch?v=r_wx01xYsZw",
+      "topic_keyword": "「夜行新幹線」年末年始に運行へ",
+      "title": "年末年始に夜行新幹線が運行へ！真夜中の保守作業を越えて復活する本当の理由",
+      "privacy_status": "public",
+      "duration_sec": 913.8,
+      "total_chars": 6277,
+      "insight_ratio": 0.644,
+      "published_at": "2026-11-26T12:20:11.315642+00:00"
     }
   ]
 }

@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-11-26T12:20:11.315642+00:00",
+  "updated_at": "2026-11-26T23:53:06.856113+00:00",
   "daily_quota": {
     "date": "2026-11-26",
-    "used_units": 1650
+    "used_units": 3300
   },
   "published_videos": [
     {
@@ -49,6 +49,17 @@
       "total_chars": 6277,
       "insight_ratio": 0.644,
       "published_at": "2026-11-26T12:20:11.315642+00:00"
+    },
+    {
+      "video_id": "kcGykGwZw9E",
+      "video_url": "https://www.youtube.com/watch?v=kcGykGwZw9E",
+      "topic_keyword": "JTなど 英たばこ大手買収検討か",
+      "title": "JTの英たばこ大手買収検討の真相！巨額M&Aがもたらす裏の狙いと今後の衝撃予測",
+      "privacy_status": "public",
+      "duration_sec": 985.7,
+      "total_chars": 6772,
+      "insight_ratio": 0.666,
+      "published_at": "2026-11-26T23:53:06.856113+00:00"
     }
   ]
 }

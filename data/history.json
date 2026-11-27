@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-11-26T23:53:06.856113+00:00",
+  "updated_at": "2026-11-27T12:06:59.732593+00:00",
   "daily_quota": {
-    "date": "2026-11-26",
-    "used_units": 3300
+    "date": "2026-11-27",
+    "used_units": 1650
   },
   "published_videos": [
     {
@@ -60,6 +60,17 @@
       "total_chars": 6772,
       "insight_ratio": 0.666,
       "published_at": "2026-11-26T23:53:06.856113+00:00"
+    },
+    {
+      "video_id": "K_Xq-WCX08g",
+      "video_url": "https://www.youtube.com/watch?v=K_Xq-WCX08g",
+      "topic_keyword": "米ネトフリ 日本作品に投資拡大",
+      "title": "ネトフリが日本作品に巨額投資！なぜ今？爆買いの裏側と業界の未来",
+      "privacy_status": "public",
+      "duration_sec": 916.3,
+      "total_chars": 6237,
+      "insight_ratio": 0.644,
+      "published_at": "2026-11-27T12:06:59.732593+00:00"
     }
   ]
 }

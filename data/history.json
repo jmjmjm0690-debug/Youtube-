@@ -1,9 +1,9 @@
 {
   "schema_version": "1.0",
-  "updated_at": "2026-11-27T23:31:34.928859+00:00",
+  "updated_at": "2026-11-28T11:41:57.171341+00:00",
   "daily_quota": {
-    "date": "2026-11-27",
-    "used_units": 3300
+    "date": "2026-11-28",
+    "used_units": 1650
   },
   "published_videos": [
     {
@@ -82,6 +82,17 @@
       "total_chars": 6255,
       "insight_ratio": 0.677,
       "published_at": "2026-11-27T23:31:34.928859+00:00"
+    },
+    {
+      "video_id": "SEP1M834Dk4",
+      "video_url": "https://www.youtube.com/watch?v=SEP1M834Dk4",
+      "topic_keyword": "銚子のサバ加工ピンチ 6社が倒産",
+      "title": "【衝撃】銚子でサバ加工6社が倒産した理由とは？今後の食卓への影響を予測",
+      "privacy_status": "public",
+      "duration_sec": 898.2,
+      "total_chars": 6130,
+      "insight_ratio": 0.638,
+      "published_at": "2026-11-28T11:41:57.171341+00:00"
     }
   ]
 }
